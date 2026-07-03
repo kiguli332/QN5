@@ -1,0 +1,74 @@
+1b. Statement interface + abstract Account
+javapublic interface Statement {
+    String generateStatement();
+}
+
+public abstract class Account implements Statement {
+    protected String accountNumber;
+    protected double balance;
+
+    public Account(String accountNumber, double balance) {
+        this.accountNumber = accountNumber;
+        this.balance = balance;
+    }
+
+    public abstract boolean withdraw(double amount); // {abstract} method
+
+    @Override
+    public String generateStatement() {
+        return "Account: " + accountNumber + ", Balance: UGX " + balance;
+    }
+}
+1c. SavingsAccount + CurrentAccount
+javapublic class SavingsAccount extends Account {
+    private double interestRate;
+
+    public SavingsAccount(String accNo, double bal, double rate) {
+        super(accNo, bal);
+        this.interestRate = rate;
+    }
+
+    @Override
+    public boolean withdraw(double amount) {
+        if(balance - amount < 0) return false; // refuse if below 0
+        balance -= amount;
+        return true;
+    }
+
+    public void addInterest() {
+        balance += balance * interestRate / 100;
+    }
+}
+
+public class CurrentAccount extends Account {
+    private double overdraftLimit;
+
+    public CurrentAccount(String accNo, double bal, double limit) {
+        super(accNo, bal);
+        this.overdraftLimit = limit;
+    }
+
+    @Override
+    public boolean withdraw(double amount) {
+        if(balance - amount < -overdraftLimit) return false; // allow negative
+        balance -= amount;
+        return true;
+    }
+}
+1d. Customer + totalWorth() 
+javaimport java.util.ArrayList;
+
+public class Customer {
+    private String name;
+    private ArrayList<Account> accounts = new ArrayList<>();
+
+    public void addAccount(Account acc) { accounts.add(acc); }
+
+    public double totalWorth() {
+        double total = 0;
+        for(Account acc : accounts) {
+            total += acc.balance; // protected so accessible
+        }
+        return total;
+    }
+}
